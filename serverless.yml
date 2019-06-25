@@ -1,0 +1,81 @@
+tenant: bohpopovych
+
+app: customers-api
+service: customers-api
+
+frameworkVersion: "1.45.1"
+
+provider:
+  name: aws
+  stage: dev
+  region: us-east-2
+  runtime: python3.6
+  environment:
+    DYNAMODB: Customers
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB}"
+
+functions:
+  create:
+    handler: customers/create.create
+    events:
+      - http:
+          path: customers
+          method: post
+          cors: false
+
+  get:
+    handler: customers/get.get
+    events:
+      - http:
+          path: customers
+          method: get
+          request:
+            parameters:
+              querystrings:
+                size: true
+                height: true
+          cors: false
+
+  update:
+    handler: customers/update.update
+    events:
+      - http:
+          path: customers/{id}
+          method: put
+          cors: false
+
+  delete:
+    handler: customers/delete.delete
+    events:
+      - http:
+          path: customers/{id}
+          method: delete
+          cors: false
+
+resources:
+  Resources:
+    CustomersTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.DYNAMODB}
