@@ -20,7 +20,7 @@ AWS:
 
     Lambda - used for api handlers (create, delete, update, etc.)
     
-    DynamoDB - storing data. But for this task DynamoDB is not correct and I can't implement sorting task by size, height. Would be better to use RDS and work with GROUP BY.
+    DynamoDB - storing data.
     
     Api Gateway - used for REST API. Describe endpoints.
     
